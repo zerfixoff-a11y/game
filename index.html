@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GameZone – Ton univers gaming, au même endroit.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap">
+<style>
+:root{--bg:#0a0a12;--panel:#14141f;--panel2:#1b1b2b;--line:#2a2a40;--tx:#eceaff;--mut:#9a98b8;--v:#7c3aed;--b:#38bdf8;--ok:#34d399}
+*{box-sizing:border-box;margin:0}
+body{font:15px/1.5 Inter,system-ui,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh}
+a{color:inherit;text-decoration:none}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--b);outline-offset:2px}
+header{position:sticky;top:0;z-index:5;display:flex;gap:16px;align-items:center;flex-wrap:wrap;padding:12px 5vw;background:rgba(10,10,18,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.logo{font-weight:800;font-size:20px;background:linear-gradient(90deg,var(--v),var(--b));-webkit-background-clip:text;background-clip:text;color:transparent}
+nav{display:flex;gap:4px}
+nav a{padding:6px 12px;border-radius:8px;color:var(--mut)}
+nav a:hover,nav a.on{color:var(--tx);background:var(--panel2)}
+.search{flex:1;min-width:180px;max-width:380px;position:relative}
+.search input{width:100%;padding:8px 14px;border-radius:10px;border:1px solid var(--line);background:var(--panel)}
+.sugg{position:absolute;top:110%;left:0;right:0;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.sugg a{display:flex;justify-content:space-between;padding:8px 14px}
+.sugg a:hover{background:var(--panel2)}
+main{padding:28px 5vw 60px;max-width:1200px;margin:auto}
+h1{font-size:clamp(30px,5vw,52px);line-height:1.1;font-weight:800}
+h2{font-size:22px;margin:32px 0 14px}
+.hero{padding:48px 28px;border-radius:20px;border:1px solid var(--line);background:radial-gradient(600px 240px at 85% 0,rgba(124,58,237,.45),transparent),radial-gradient(500px 240px at 0 100%,rgba(56,189,248,.25),transparent),var(--panel)}
+.hero p{color:var(--mut);margin:12px 0 20px;max-width:56ch}
+.btn{display:inline-block;cursor:pointer;border:1px solid var(--line);background:var(--panel2);padding:8px 16px;border-radius:10px;transition:border-color .2s,box-shadow .2s}
+.btn:hover{border-color:var(--v);box-shadow:0 0 14px rgba(124,58,237,.45)}
+.btn.p{background:linear-gradient(90deg,var(--v),#4f46e5);border-color:transparent}
+.btn.on{border-color:var(--b);color:var(--b)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
+.card{display:block;padding:18px;border-radius:16px;background:var(--panel);border:1px solid var(--line);transition:transform .2s,border-color .2s,box-shadow .2s}
+a.card:hover{transform:translateY(-3px);border-color:var(--v);box-shadow:0 8px 24px rgba(124,58,237,.25)}
+.card small,.mut{color:var(--mut)}
+.cover{height:90px;border-radius:10px;margin-bottom:12px;display:grid;place-items:center;font-weight:800;font-size:28px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+.stats b{display:block;font-size:28px}
+.bar{height:8px;border-radius:6px;background:var(--panel2);overflow:hidden;margin:4px 0 12px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--v),var(--b))}
+input,select{padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:var(--panel2)}
+.tag{font-size:12px;padding:2px 8px;border-radius:99px;border:1px solid var(--line);color:var(--mut)}
+.tag.m{color:var(--ok);border-color:var(--ok)}
+.note{border-left:3px solid var(--b);padding:10px 14px;background:var(--panel);border-radius:0 10px 10px 0;color:var(--mut);margin:14px 0}
+footer{border-top:1px solid var(--line);padding:24px 5vw;color:var(--mut);text-align:center}
+svg text{fill:var(--mut);font-size:11px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <a href="#/" class="logo">GameZone</a>
+  <div class="search"><input id="q" type="search" placeholder="Rechercher un jeu ou une catégorie" autocomplete="off" aria-label="Recherche"><div id="sg" class="sugg" hidden></div></div>
+  <nav><a href="#/" data-r="home">Accueil</a><a href="#/categories" data-r="categories">Catégories</a><a href="#/stats" data-r="stats">Mes statistiques</a></nav>
+</header>
+<main id="app"></main>
+<footer>GameZone · Ton univers gaming, au même endroit. · Données enregistrées dans ton navigateur.</footer>
+<script>
+const CATS={
+"FPS":{c:"#ef4444",d:"Tirs à la première personne, réflexes et jeu d'équipe.",g:["Valorant","Counter-Strike 2","Call of Duty","Battlefield","Overwatch 2","Rainbow Six Siege"]},
+"Battle Royale":{c:"#f59e0b",d:"Dernier survivant gagne : parachute, loot et zone qui rétrécit.",g:["Fortnite","PUBG","Apex Legends","Warzone"]},
+"Sandbox":{c:"#22c55e",d:"Construis, explore et crée sans limites.",g:["Minecraft","Roblox","Terraria","Garry's Mod"]},
+"RPG":{c:"#a855f7",d:"Incarne un héros et vis des histoires immenses.",g:["Elden Ring","Genshin Impact","Hogwarts Legacy","The Witcher 3"]},
+"Simulation":{c:"#06b6d4",d:"Vie, camions, fermes et avions : simule le quotidien.",g:["The Sims 4","Euro Truck Simulator 2","Farming Simulator","Microsoft Flight Simulator"]},
+"Sport":{c:"#3b82f6",d:"Football, basket, F1 et voitures-football.",g:["EA Sports FC","Rocket League","NBA 2K","F1"]},
+"Survival":{c:"#f97316",d:"Récolte, construis et survis dans un monde hostile.",g:["Rust","ARK","DayZ","Sons of the Forest"]},
+"MMO":{c:"#ec4899",d:"Des mondes persistants partagés avec des milliers de joueurs.",g:["World of Warcraft","Final Fantasy XIV","Guild Wars 2"]}};
+const GAMES=[];for(const[k,v]of Object.entries(CATS))v.g.forEach(n=>GAMES.push({n,cat:k,id:n.toLowerCase().replace(/[^a-z0-9]+/g,'-')}));
+const gid=id=>GAMES.find(g=>g.id===id);
+const load=()=>{try{return JSON.parse(localStorage.getItem('gz')||'')||{}}catch(e){return{}}};
+let S=Object.assign({fav:[],lib:[],rev:{},sess:[]},load());
+const save=()=>{try{localStorage.setItem('gz',JSON.stringify(S))}catch(e){}};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const hrs=m=>(m/60).toFixed(m%60?1:0).replace('.',',')+' h';
+const total=()=>S.sess.reduce((a,s)=>a+s.min,0);
+const byGame=()=>{const o={};S.sess.forEach(s=>o[s.g]=(o[s.g]||0)+s.min);return o};
+const cover=g=>`<div class="cover" style="background:linear-gradient(135deg,${CATS[g.cat].c}55,#14141f)">${esc(g.n.slice(0,2))}</div>`;
+const gcard=g=>`<a class="card" href="#/game/${g.id}">${cover(g)}<b>${esc(g.n)}</b><br><small>${g.cat}</small></a>`;
+const $=document.getElementById.bind(document);
+
+function home(){
+ const most=Object.entries(byGame()).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([id])=>gid(id)).filter(Boolean);
+ return `<section class="hero"><h1>Ton univers gaming,<br>au même endroit.</h1><p>Explore ${GAMES.length} jeux dans ${Object.keys(CATS).length} catégories, note-les, ajoute-les à ta bibliothèque et suis ton temps de jeu.</p><div class="row"><a class="btn p" href="#/categories">Explorer les jeux</a><a class="btn" href="#/stats">Mes statistiques</a></div></section>
+ ${most.length?`<h2>Tes jeux les plus joués</h2><div class="grid">${most.map(gcard).join('')}</div>`:''}
+ <h2>Catégories</h2><div class="grid">${Object.entries(CATS).map(([k,v])=>`<a class="card" href="#/cat/${encodeURIComponent(k)}" style="border-top:3px solid ${v.c}"><b>${k}</b><br><small>${v.g.length} jeux</small></a>`).join('')}</div>
+ <h2>Tous les jeux</h2><div class="grid">${GAMES.map(gcard).join('')}</div>
+ <div class="note">Les actualités, notes de la communauté et classements apparaîtront quand un serveur (Supabase) sera connecté. Rien n'est inventé ici : seules tes propres données sont affichées.</div>`}
+
+function cats(){return `<h1>Catégories</h1>${Object.entries(CATS).map(([k,v])=>`<h2 style="color:${v.c}">${k}</h2><p class="mut" style="margin-bottom:12px">${v.d}</p><div class="grid">${v.g.map(n=>gcard(GAMES.find(x=>x.n===n))).join('')}</div>`).join('')}`}
+
+function cat(name){const v=CATS[name];if(!v)return nf();
+ return `<section class="hero" style="background:linear-gradient(135deg,${v.c}44,var(--panel))"><h1>${esc(name)}</h1><p>${v.d}</p></section>
+ <div class="row" style="margin:18px 0"><input id="cf" placeholder="Filtrer dans ${esc(name)}" aria-label="Filtrer"><select id="cs" aria-label="Trier"><option value="a">A → Z</option><option value="t">Mon temps de jeu</option></select></div>
+ <div class="grid" id="cl"></div>`}
+function catList(name){const bg=byGame(),f=$('cf').value.toLowerCase();let l=GAMES.filter(g=>g.cat===name&&g.n.toLowerCase().includes(f));
+ l.sort($('cs').value==='t'?(a,b)=>(bg[b.id]||0)-(bg[a.id]||0):(a,b)=>a.n.localeCompare(b.n));
+ $('cl').innerHTML=l.map(gcard).join('')||'<p class="mut">Aucun jeu ne correspond à ce filtre.</p>'}
+
+function game(id){const g=gid(id);if(!g)return nf();
+ const fav=S.fav.includes(id),lib=S.lib.includes(id),r=S.rev[id]||{},mine=S.sess.filter(s=>s.g===id),m=mine.reduce((a,s)=>a+s.min,0);
+ return `<section class="hero" style="background:linear-gradient(135deg,${CATS[g.cat].c}44,var(--panel))"><span class="tag">${g.cat}</span><h1>${esc(g.n)}</h1>
+ <div class="row" style="margin-top:18px"><button class="btn ${fav?'on':''}" data-a="fav">${fav?'Retirer des favoris':'Ajouter aux favoris'}</button><button class="btn ${lib?'on':''}" data-a="lib">${lib?'Dans ma bibliothèque':'Ajouter à ma bibliothèque'}</button></div></section>
+ <div class="note">Développeur, date de sortie, plateformes et note de la communauté seront alimentés par l'API RAWG une fois le serveur configuré.</div>
+ <h2>Mon temps de jeu : ${hrs(m)}</h2>
+ <div class="row"><input id="sm" type="number" min="1" max="1440" placeholder="Minutes" style="width:110px" aria-label="Minutes jouées"><input id="sd" type="date" aria-label="Date"><button class="btn p" data-a="sess">Ajouter une session</button></div>
+ <p class="mut" style="margin-top:8px">${mine.length} session(s), toutes <span class="tag m">Saisie manuelle</span></p>
+ <h2>Mon avis</h2>
+ <div class="row"><select id="rs" aria-label="Note sur 10"><option value="">Note /10</option>${[...Array(10)].map((_,i)=>`<option ${r.s==i+1?'selected':''}>${i+1}</option>`).join('')}</select><input id="rt" value="${esc(r.t||'')}" placeholder="Ton commentaire" style="flex:1;min-width:200px" aria-label="Commentaire"><button class="btn p" data-a="rev">Enregistrer</button>${r.s?'<button class="btn" data-a="del">Supprimer</button>':''}</div>
+ <h2>Jeux similaires</h2><div class="grid">${GAMES.filter(x=>x.cat===g.cat&&x.id!==id).map(gcard).join('')}</div>`}
+
+function stats(){const bg=byGame(),t=total(),now=Date.now(),w=S.sess.filter(s=>now-new Date(s.d)<7*864e5).reduce((a,s)=>a+s.min,0),mo=S.sess.filter(s=>now-new Date(s.d)<30*864e5).reduce((a,s)=>a+s.min,0);
+ const top=Object.entries(bg).sort((a,b)=>b[1]-a[1]),cm={};top.forEach(([id,m])=>{const c=gid(id).cat;cm[c]=(cm[c]||0)+m});
+ const days=[...Array(14)].map((_,i)=>{const d=new Date(now-(13-i)*864e5).toISOString().slice(0,10);return{d,m:S.sess.filter(s=>s.d===d).reduce((a,s)=>a+s.min,0)}}),mx=Math.max(60,...days.map(x=>x.m));
+ const chart=`<svg viewBox="0 0 560 150" style="width:100%;max-height:200px" role="img" aria-label="Minutes jouées sur 14 jours">${days.map((x,i)=>{const h=x.m/mx*110;return `<rect x="${i*40+6}" y="${120-h}" width="28" height="${h}" rx="5" fill="url(#gg)"><title>${x.d} : ${x.m} min</title></rect><text x="${i*40+20}" y="140" text-anchor="middle">${x.d.slice(8)}</text>`}).join('')}<defs><linearGradient id="gg" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#38bdf8"/><stop offset="1" stop-color="#7c3aed"/></linearGradient></defs></svg>`;
+ const bd=[["Premier jeu ajouté",S.lib.length>=1],["Collectionneur (10 jeux)",S.lib.length>=10],["100 heures de jeu",t>=6000],["500 heures de jeu",t>=30000],["Joueur polyvalent (4 catégories)",Object.keys(cm).length>=4]];
+ const xp=Math.floor(t/6)+S.lib.length*20+Object.keys(S.rev).length*10,lvl=Math.floor(Math.sqrt(xp/50))+1;
+ return `<h1>Mes statistiques gaming</h1>
+ <div class="note">Le temps de jeu est saisi manuellement. La synchronisation Steam, Xbox, PlayStation ou Epic exige un serveur sécurisé qui garde les clés API : elle n'est pas simulée ici.</div>
+ <div class="stats" style="margin-top:18px"><div class="card"><small>Total</small><b>${hrs(t)}</b></div><div class="card"><small>7 derniers jours</small><b>${hrs(w)}</b></div><div class="card"><small>30 derniers jours</small><b>${hrs(mo)}</b></div><div class="card"><small>Bibliothèque</small><b>${S.lib.length}</b></div><div class="card"><small>Niveau GameZone</small><b>${lvl}</b><small>${xp} XP</small></div></div>
+ <h2>Ajouter une session</h2><div class="row"><select id="ag" aria-label="Jeu">${GAMES.map(g=>`<option value="${g.id}">${esc(g.n)}</option>`).join('')}</select><input id="sm" type="number" min="1" max="1440" placeholder="Minutes" style="width:110px" aria-label="Minutes"><input id="sd" type="date" aria-label="Date"><button class="btn p" data-a="sess2">Ajouter</button></div>
+ <h2>Progression (14 jours)</h2><div class="card">${chart}</div>
+ <h2>Temps par jeu</h2><div class="card">${top.length?top.map(([id,m])=>`<div class="row" style="justify-content:space-between"><a href="#/game/${id}">${esc(gid(id).n)}</a><span class="mut">${hrs(m)}</span></div><div class="bar"><i style="width:${m/top[0][1]*100}%"></i></div>`).join(''):'<p class="mut">Aucune session pour l\'instant. Ajoute ta première session ci-dessus.</p>'}</div>
+ <h2>Par catégorie</h2><div class="card">${Object.entries(cm).map(([c,m])=>`<div class="row" style="justify-content:space-between"><span>${c}</span><span class="mut">${hrs(m)} · ${Math.round(m/t*100)}%</span></div><div class="bar"><i style="width:${m/t*100}%"></i></div>`).join('')||'<p class="mut">Rien à afficher.</p>'}</div>
+ <h2>Badges</h2><div class="grid">${bd.map(([n,o])=>`<div class="card" style="opacity:${o?1:.45}"><b>${n}</b><br><small>${o?'Débloqué':'À débloquer'}</small></div>`).join('')}</div>
+ <h2>Historique des sessions</h2><div class="card">${S.sess.slice().reverse().slice(0,15).map(s=>`<div class="row" style="justify-content:space-between"><span>${esc(gid(s.g).n)} · ${s.d}</span><span>${s.min} min <span class="tag m">Saisie manuelle</span></span></div>`).join('')||'<p class="mut">Aucune session.</p>'}</div>
+ <h2>Favoris</h2><div class="grid">${S.fav.map(i=>gcard(gid(i))).join('')||'<p class="mut">Aucun favori.</p>'}</div>
+ <div class="row" style="margin-top:24px"><button class="btn" data-a="reset">Effacer mes données</button></div>`}
+const nf=()=>'<h1>Page introuvable</h1><p class="mut" style="margin-top:10px"><a class="btn" href="#/">Retour à l\'accueil</a></p>';
+
+function render(){const h=location.hash.slice(2).split('/'),r=h[0]||'home',p=decodeURIComponent(h[1]||'');
+ $('app').innerHTML=r==='home'?home():r==='categories'?cats():r==='cat'?cat(p):r==='game'?game(p):r==='stats'?stats():nf();
+ document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('on',a.dataset.r===r));
+ if(r==='cat'&&CATS[p]){catList(p);$('cf').oninput=$('cs').onchange=()=>catList(p)}
+ const d=$('sd');if(d)d.value=new Date().toISOString().slice(0,10);scrollTo(0,0)}
+function addSess(g){const m=parseInt($('sm').value,10),d=$('sd').value;if(!m||m<1||m>1440||!d){alert('Entre une durée entre 1 et 1440 minutes et une date.');return}S.sess.push({g,min:m,d});save();render()}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a,id=location.hash.split('/')[2],tg=(l)=>{S[l]=S[l].includes(id)?S[l].filter(x=>x!==id):[...S[l],id];save();render()};
+ if(a==='fav')tg('fav');else if(a==='lib')tg('lib');else if(a==='sess')addSess(id);else if(a==='sess2')addSess($('ag').value);
+ else if(a==='rev'){const s=+$('rs').value,t=$('rt').value.trim().slice(0,500);if(!s){alert('Choisis une note de 1 à 10.');return}S.rev[id]={s,t};save();render()}
+ else if(a==='del'){delete S.rev[id];save();render()}
+ else if(a==='reset'&&confirm('Supprimer toutes tes données GameZone de ce navigateur ?')){S={fav:[],lib:[],rev:{},sess:[]};save();render()}});
+$('q').oninput=e=>{const v=e.target.value.trim().toLowerCase(),s=$('sg');if(!v){s.hidden=true;return}
+ const r=[...GAMES.filter(g=>g.n.toLowerCase().includes(v)).map(g=>[g.n,g.cat,'#/game/'+g.id]),...Object.keys(CATS).filter(c=>c.toLowerCase().includes(v)).map(c=>[c,'Catégorie','#/cat/'+encodeURIComponent(c)])].slice(0,6);
+ s.innerHTML=r.map(x=>`<a href="${x[2]}">${esc(x[0])}<small class="mut">${esc(x[1])}</small></a>`).join('')||'<a class="mut">Aucun résultat</a>';s.hidden=false};
+document.addEventListener('click',e=>{if(!e.target.closest('.search')){$('sg').hidden=true}});
+$('sg').onclick=()=>{$('sg').hidden=true;$('q').value=''};
+addEventListener('hashchange',render);render();
+</script>
+</body>
+</html>
